@@ -39,36 +39,60 @@ public class PlayerAnimations : MonoBehaviour
         bool firstAttackAnimation = _animator.GetBool(a_firstAttack);
         bool secondAttackAnimation = _animator.GetBool(a_secondAttack);
         bool lastAttackAnimation = _animator.GetBool(a_lastAttack);
-        _animator.SetFloat(a_velocity, PlayerMovement.instance._currentVelocity);
 
-        if(PlayerMovement.instance.JumpPressed && !isJumpingAnimation)
+        #region Movement Animation Requirement
+        _animator.SetFloat(a_velocity, PlayerManager.Instance.GetCurrentVelocity());
+        #endregion
+
+        #region Jump Animation Requirement
+        if (PlayerManager.Instance.GetJumpPressed() && !isJumpingAnimation)
         {
             _animator.SetBool(a_isJumping, true);
         }
-        else if(!PlayerMovement.instance.JumpPressed && isJumpingAnimation)
+        else if (!PlayerManager.Instance.GetJumpPressed() && isJumpingAnimation)
         {
             _animator.SetBool(a_isJumping, false);
         }
-        else if(PlayerMovement.instance.JumpPressed && isJumpingAnimation)
+        else if (PlayerManager.Instance.GetJumpPressed() && isJumpingAnimation)
         {
             _animator.SetBool(a_isJumping, false);
         }
+        #endregion
 
-        if(PlayerMovement.instance.IsGrounded && PlayerAttack.instance.IsAttacking && !firstAttackAnimation)
+        #region First Attack Animation Requirement
+        if (PlayerManager.Instance.GetIsGrounded() && PlayerManager.Instance.GetPlayerAttacking() && !firstAttackAnimation)
         {
             _animator.SetBool(a_firstAttack, true);
         }
-        else if(PlayerMovement.instance.IsGrounded && PlayerAttack.instance.IsAttacking && firstAttackAnimation)
+        else if (PlayerManager.Instance.GetIsGrounded() && PlayerManager.Instance.GetPlayerAttacking() && firstAttackAnimation)
         {
             _animator.SetBool(a_firstAttack, false);
         }
-        else if (PlayerMovement.instance.IsGrounded && !PlayerAttack.instance.IsAttacking && !firstAttackAnimation)
+        else if (PlayerManager.Instance.GetIsGrounded() && !PlayerManager.Instance.GetPlayerAttacking() && !firstAttackAnimation)
         {
             _animator.SetBool(a_firstAttack, false);
         }
-        else if (PlayerMovement.instance.IsGrounded && !PlayerAttack.instance.IsAttacking && firstAttackAnimation)
+        else if (PlayerManager.Instance.GetIsGrounded() && !PlayerManager.Instance.GetPlayerAttacking() && firstAttackAnimation)
         {
             _animator.SetBool(a_firstAttack, false);
         }
+        #endregion
+
+        #region Second Animation Requirement
+        if (PlayerManager.Instance.GetIsGrounded() && PlayerManager.Instance.GetPlayerAttacking() && !secondAttackAnimation)
+        {
+            _animator.SetBool(a_secondAttack, true);
+        }
+        else if (PlayerManager.Instance.GetIsGrounded() && PlayerManager.Instance.GetPlayerAttacking() && secondAttackAnimation)
+        {
+            _animator.SetBool(a_secondAttack, false);
+        }
+        else if (PlayerManager.Instance.GetIsGrounded() && !PlayerManager.Instance.GetPlayerAttacking() && !secondAttackAnimation)
+        {
+            _animator.SetBool(a_secondAttack, false);
+        }
+        #endregion
+
     }
 }
+

@@ -5,55 +5,48 @@ using UnityEngine.InputSystem;
 
 public class PlayerAttack : MonoBehaviour
 {
-    private PlayerInputSystem _playerInputSystem;
-    public static PlayerAttack instance;
-
-    public bool IsAttacking;
+    public bool CanDoComboHit = false;
+    public bool BackToTheFistCombo = true;
+    [SerializeField] private float timeToMove;
+    [SerializeField] private float timeToDoCombo;
 
     private void Awake()
     {
-        if (instance == null)
-        {
-            instance = this;
-        }
-        else
-        {
-            Destroy(this.gameObject);
-        }
-
-        _playerInputSystem = new PlayerInputSystem();
-
-        _playerInputSystem.Player.Attack.started += OnAttacking;
-        _playerInputSystem.Player.Attack.canceled += OnAttacking;
+        BackToTheFistCombo = true;
+        CanDoComboHit = false;
     }
 
-
-    private void OnAttacking(InputAction.CallbackContext context)
+    public void AttackPlayer(InputAction.CallbackContext context)
     {
-        IsAttacking = context.ReadValueAsButton();
+        PlayerManager.Instance.SetPlayerAttacking(context.ReadValueAsButton());
+        SetAttack();
+    }
 
-        if (IsAttacking)
+    private void SetAttack()
+    {
+        if (PlayerManager.Instance.GetPlayerAttacking())
         {
             StartCoroutine(PlayerCantMove());
+            StartCoroutine(TimerToCombo());
         }
     }
 
-    IEnumerator PlayerCantMove()
+
+    public IEnumerator PlayerCantMove()
     {
-        PlayerMovement.instance.Velocity = 0;
+        PlayerManager.Instance.SetVelocity(0);
         Debug.Log($"Player nao pode se mexer");
-        yield return new WaitForSeconds(0.5f);
-        PlayerMovement.instance.Velocity = 5;
+        yield return new WaitForSeconds(timeToMove);
+        PlayerManager.Instance.SetVelocity(5);
         Debug.Log($"Player pode se mexer");
     }
 
-    private void OnEnable()
+    public IEnumerator TimerToCombo()
     {
-        _playerInputSystem.Enable();
-    }
-
-    private void OnDisable()
-    {
-        _playerInputSystem.Disable();
+        BackToTheFistCombo = false;
+        CanDoComboHit = true;
+        yield return new WaitForSeconds(timeToDoCombo);
+        CanDoComboHit = false;
+        BackToTheFistCombo = true;
     }
 }

@@ -7,55 +7,28 @@ using UnityEngine.InputSystem;
 public class PlayerMovement : MonoBehaviour
 {
     private CharacterController _characterController;
-    private PlayerInputSystem _playerInputSystem;
-    public static PlayerMovement instance;
+    private CameraComponent _cameraComponent;
 
-    private Vector2 _movementCharacterInput;
-    private Vector3 _movementCharacter;
     private Vector3 _positionToLookAt;
     private Vector3 _cameraRelativeMovement;
-    private float _verticalVelocity;
-    private float _gravity = -9.81f;
-
+    public float CurrentVelocity;
     public bool IsGrounded;
-    public float _currentVelocity;
-    public bool JumpPressed;
 
-    public float Velocity;
     [SerializeField] private float _rotationVelocity;
-    [SerializeField] private float _jumpHeight;
     [SerializeField] private Transform _footPosition;
     [SerializeField] private LayerMask _groundLayer;
 
     private void Awake()
     {
-        if(instance == null)
-        {
-            instance = this;
-        }
-        else
-        {
-            Destroy(this.gameObject);
-        }
-
         _characterController = GetComponent<CharacterController>();
-        _playerInputSystem = new PlayerInputSystem();
-
-        _playerInputSystem.Player.Walk.started += OnMovementInput;
-        _playerInputSystem.Player.Walk.canceled += OnMovementInput;
-        _playerInputSystem.Player.Walk.performed += OnMovementInput;
-
-        _playerInputSystem.Player.Jump.started += OnJumpInput;
-        _playerInputSystem.Player.Jump.canceled += OnJumpInput;
+        _cameraComponent = new CameraComponent();
     }
 
     private void FixedUpdate()
     {
         SetMovementCharacter();
         SetRotationCharacter();
-        GravityHandler();
 
-        Debug.Log(IsGrounded);
         IsGrounded = Physics.CheckSphere(_footPosition.position, 0.5f, _groundLayer);
     }
 
@@ -68,7 +41,7 @@ public class PlayerMovement : MonoBehaviour
         positionToLookAt.z = _cameraRelativeMovement.z;
         Quaternion currentRotation = transform.rotation;
 
-        if (_currentVelocity != 0)
+        if (CurrentVelocity != 0)
         {
             Quaternion targetRotation = Quaternion.LookRotation(positionToLookAt);
             transform.rotation = Quaternion.Slerp(currentRotation, targetRotation, rotationFactorPerFrame * Time.deltaTime);
@@ -77,65 +50,27 @@ public class PlayerMovement : MonoBehaviour
 
     private void SetMovementCharacter()
     {
-        _currentVelocity = _characterController.velocity.magnitude/Velocity;
+        CurrentVelocity = _characterController.velocity.magnitude/PlayerManager.Instance.GetVelocity();
 
-        _cameraRelativeMovement = ConverToCameraSpace(_movementCharacter);
-        _characterController.Move(_cameraRelativeMovement * Velocity * Time.deltaTime);
+        _cameraRelativeMovement = _cameraComponent.ConverToCameraSpace(PlayerManager.Instance.GetMovementCharacter());
+        _characterController.Move(_cameraRelativeMovement * PlayerManager.Instance.GetVelocity() * Time.deltaTime);
     }
 
-    private void GravityHandler()
+    public void JumpPlayer(InputAction.CallbackContext context)
     {
-        _verticalVelocity += _gravity * Time.deltaTime;
-    }
+        PlayerManager.Instance.SetJumpPressed(context.ReadValueAsButton());
+        Vector3 _newMovementCharacter = PlayerManager.Instance.GetMovementCharacter();
 
-    private Vector3 ConverToCameraSpace(Vector3 vectorToRotate)
-    {
-        float currentYValue = vectorToRotate.y;
-
-        Vector3 cameraForward = Camera.main.transform.forward;
-        Vector3 cameraRight = Camera.main.transform.right;
-
-        cameraForward.y = 0;
-        cameraRight.y = 0;
-
-        cameraForward = cameraForward.normalized;
-        cameraRight = cameraRight.normalized;
-
-        Vector3 cameraForwardZproduct = vectorToRotate.z * cameraForward;
-        Vector3 cameraRightXProduct = vectorToRotate.x * cameraRight;
-
-        Vector3 vectorRotatedToCameraSpace = cameraForwardZproduct + cameraRightXProduct;
-        vectorRotatedToCameraSpace.y = currentYValue;
-        return vectorRotatedToCameraSpace;
-    }
-
-    private void OnMovementInput(InputAction.CallbackContext context)
-    {
-        _movementCharacterInput = context.ReadValue<Vector2>();
-        _movementCharacter = new Vector3(_movementCharacterInput.x, _verticalVelocity, _movementCharacterInput.y);
-    }
-
-    private void OnJumpInput(InputAction.CallbackContext context)
-    {
-        JumpPressed = context.ReadValueAsButton();
-
-        if (JumpPressed && IsGrounded)
+        if (PlayerManager.Instance.GetJumpPressed() && PlayerManager.Instance.GetIsGrounded())
         {
-            _verticalVelocity = Mathf.Sqrt(_jumpHeight * -2f * _gravity);
+            _newMovementCharacter.y = Mathf.Sqrt(PlayerManager.Instance.GetJumpHeight() * -2f * PlayerManager.Instance.GetGravity());
+            PlayerManager.Instance.SetMovementCharacter(_newMovementCharacter);
         }
 
-        if (IsGrounded && _verticalVelocity < 0)
+        if (PlayerManager.Instance.GetIsGrounded() && PlayerManager.Instance.GetMovementCharacter().y < 0)
         {
-            _verticalVelocity = -1f;
+            _newMovementCharacter.y = -1f;
+            PlayerManager.Instance.SetMovementCharacter(_newMovementCharacter);
         }
-    }
-
-    private void OnEnable()
-    {
-        _playerInputSystem.Enable();
-    }
-    private void OnDisable()
-    {
-        _playerInputSystem.Disable();
     }
 }
