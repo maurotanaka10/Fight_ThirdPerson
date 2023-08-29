@@ -9,9 +9,9 @@ public class PlayerAnimations : MonoBehaviour
 
     private int a_isJumping;
     private int a_velocity;
-    private int a_firstAttack;
-    private int a_secondAttack;
-    private int a_lastAttack;
+    private int a_attack1;
+    private int a_attack2;
+    private int a_attack3;
 
     private void Awake()
     {
@@ -23,9 +23,9 @@ public class PlayerAnimations : MonoBehaviour
     {
         a_isJumping = Animator.StringToHash("isJumping");
         a_velocity = Animator.StringToHash("velocity");
-        a_firstAttack = Animator.StringToHash("firstAttack");
-        a_secondAttack = Animator.StringToHash("secondAttack");
-        a_lastAttack = Animator.StringToHash("lastAttack");
+        a_attack1 = Animator.StringToHash("attack1");
+        a_attack2 = Animator.StringToHash("attack2");
+        a_attack3 = Animator.StringToHash("attack3");
     }
 
     private void Update()
@@ -36,9 +36,9 @@ public class PlayerAnimations : MonoBehaviour
     private void AnimationHandler()
     {
         bool isJumpingAnimation = _animator.GetBool(a_isJumping);
-        bool firstAttackAnimation = _animator.GetBool(a_firstAttack);
-        bool secondAttackAnimation = _animator.GetBool(a_secondAttack);
-        bool lastAttackAnimation = _animator.GetBool(a_lastAttack);
+        bool attack1Animation = _animator.GetBool(a_attack1);
+        bool attack2Animation = _animator.GetBool(a_attack2);
+        bool attack3Animation = _animator.GetBool(a_attack3);
 
         #region Movement Animation Requirement
         _animator.SetFloat(a_velocity, PlayerManager.Instance.GetCurrentVelocity());
@@ -60,39 +60,38 @@ public class PlayerAnimations : MonoBehaviour
         #endregion
 
         #region First Attack Animation Requirement
-        if (PlayerManager.Instance.GetIsGrounded() && PlayerManager.Instance.GetPlayerAttacking() && !firstAttackAnimation)
+        if(PlayerManager.Instance.GetIsGrounded() && PlayerManager.Instance.GetPlayerAttacking() && !attack1Animation)
         {
-            _animator.SetBool(a_firstAttack, true);
+            _animator.SetBool(a_attack1, true);
         }
-        else if (PlayerManager.Instance.GetIsGrounded() && PlayerManager.Instance.GetPlayerAttacking() && firstAttackAnimation)
+        else if(PlayerManager.Instance.GetIsGrounded() && PlayerManager.Instance.GetPlayerAttacking() && attack1Animation)
         {
-            _animator.SetBool(a_firstAttack, false);
+            _animator.SetBool(a_attack1, false);
         }
-        else if (PlayerManager.Instance.GetIsGrounded() && !PlayerManager.Instance.GetPlayerAttacking() && !firstAttackAnimation)
+        else if (PlayerManager.Instance.GetIsGrounded() && !PlayerManager.Instance.GetPlayerAttacking() && attack1Animation)
         {
-            _animator.SetBool(a_firstAttack, false);
-        }
-        else if (PlayerManager.Instance.GetIsGrounded() && !PlayerManager.Instance.GetPlayerAttacking() && firstAttackAnimation)
-        {
-            _animator.SetBool(a_firstAttack, false);
+            _animator.SetBool(a_attack1, false);
         }
         #endregion
 
         #region Second Animation Requirement
-        if (PlayerManager.Instance.GetIsGrounded() && PlayerManager.Instance.GetPlayerAttacking() && !secondAttackAnimation)
+        if (PlayerManager.Instance.GetIsGrounded() && PlayerManager.Instance.GetPlayerAttacking() && !attack2Animation && PlayerManager.Instance.GetAttackComboIndex() == 3)
         {
-            _animator.SetBool(a_secondAttack, true);
+            _animator.SetBool(a_attack2, true);
         }
-        else if (PlayerManager.Instance.GetIsGrounded() && PlayerManager.Instance.GetPlayerAttacking() && secondAttackAnimation)
+        else if (PlayerManager.Instance.GetIsGrounded() && PlayerManager.Instance.GetPlayerAttacking() && attack2Animation)
         {
-            _animator.SetBool(a_secondAttack, false);
+            _animator.SetBool(a_attack2, false);
         }
-        else if (PlayerManager.Instance.GetIsGrounded() && !PlayerManager.Instance.GetPlayerAttacking() && !secondAttackAnimation)
+        else if (PlayerManager.Instance.GetIsGrounded() && !PlayerManager.Instance.GetPlayerAttacking() && attack2Animation)
         {
-            _animator.SetBool(a_secondAttack, false);
+            _animator.SetBool(a_attack2, false);
         }
         #endregion
 
+        #region Second Animation Requirement
+
+        #endregion
     }
 }
 

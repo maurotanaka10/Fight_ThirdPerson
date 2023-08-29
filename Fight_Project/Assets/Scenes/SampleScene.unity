@@ -2381,10 +2381,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5dea55c266d5aa542a4169217cac363c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  CanDoComboHit: 0
-  BackToTheFistCombo: 0
+  AttackComboIndex: 0
   timeToMove: 0.5
-  timeToDoCombo: 1
+  timeToResetCombo: 5
 --- !u!114 &539745478810436119
 MonoBehaviour:
   m_ObjectHideFlags: 0

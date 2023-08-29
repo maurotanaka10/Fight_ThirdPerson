@@ -5,30 +5,30 @@ using UnityEngine.InputSystem;
 
 public class PlayerAttack : MonoBehaviour
 {
-    public bool CanDoComboHit = false;
-    public bool BackToTheFistCombo = true;
+    public int AttackComboIndex = 0;
+    private bool isInCombat;
     [SerializeField] private float timeToMove;
-    [SerializeField] private float timeToDoCombo;
+    [SerializeField] private float timeToResetCombo;
 
-    private void Awake()
+    private void Update()
     {
-        BackToTheFistCombo = true;
-        CanDoComboHit = false;
+        if(PlayerManager.Instance.GetPlayerAttacking() && !isInCombat)
+        {
+            SetAttack();
+        }
     }
 
     public void AttackPlayer(InputAction.CallbackContext context)
     {
         PlayerManager.Instance.SetPlayerAttacking(context.ReadValueAsButton());
-        SetAttack();
     }
 
     private void SetAttack()
     {
-        if (PlayerManager.Instance.GetPlayerAttacking())
-        {
-            StartCoroutine(PlayerCantMove());
-            StartCoroutine(TimerToCombo());
-        }
+        isInCombat = true;
+        AttackComboIndex = 0;
+        AttackComboIndex = AttackComboIndex + 1;
+        StartCoroutine(ResetCombo());
     }
 
 
@@ -41,12 +41,10 @@ public class PlayerAttack : MonoBehaviour
         Debug.Log($"Player pode se mexer");
     }
 
-    public IEnumerator TimerToCombo()
+    public IEnumerator ResetCombo()
     {
-        BackToTheFistCombo = false;
-        CanDoComboHit = true;
-        yield return new WaitForSeconds(timeToDoCombo);
-        CanDoComboHit = false;
-        BackToTheFistCombo = true;
+        yield return new WaitForSeconds(timeToResetCombo);
+        isInCombat = false;
+        AttackComboIndex = 0;
     }
 }

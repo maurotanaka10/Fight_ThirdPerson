@@ -109,15 +109,10 @@ public class PlayerManager : MonoBehaviour
     {
         return _gravityComponent.Gravity;
     }
-
-    public bool GetCanDoComboHit()
+    
+    public int GetAttackComboIndex()
     {
-        return _playerAttack.CanDoComboHit;
-    }
-
-    public bool GetBackToFirstCombo()
-    {
-        return _playerAttack.BackToTheFistCombo;
+        return _playerAttack.AttackComboIndex;
     }
 
     private void OnDisable()
