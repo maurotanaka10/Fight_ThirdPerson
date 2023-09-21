@@ -7,91 +7,85 @@ public class PlayerAnimations : MonoBehaviour
 {
     private Animator _animator;
 
-    private int a_isJumping;
-    private int a_velocity;
-    private int a_attack1;
-    private int a_attack2;
-    private int a_attack3;
+    private int _isJumpingHash;
+    private int _velocityHash;
+    private int _isAttackHash;
+    private int _numberOfJumpsHash;
+
+    private int _numberOfJumps;
+    private bool _isJumping;
+    private bool _isAttacking;
+    private float _currentVelocity = 0;
 
     private void Awake()
     {
         GetAnimatorParameters();
         _animator = GetComponent<Animator>();
+
+        PlayerManager.HandleJumpInput += JumpAnimationHandler;
+        PlayerManager.HandleAttackInput += AttackAnimationHandler;
     }
 
     private void GetAnimatorParameters()
     {
-        a_isJumping = Animator.StringToHash("isJumping");
-        a_velocity = Animator.StringToHash("velocity");
-        a_attack1 = Animator.StringToHash("attack1");
-        a_attack2 = Animator.StringToHash("attack2");
-        a_attack3 = Animator.StringToHash("attack3");
+        _isJumpingHash = Animator.StringToHash("isJumping");
+        _velocityHash = Animator.StringToHash("velocity");
+        _isAttackHash = Animator.StringToHash("isAttacking");
+        _numberOfJumpsHash = Animator.StringToHash("numberOfJumps");
     }
 
     private void Update()
     {
-        AnimationHandler();
+        MoveAnimationHandler();
     }
 
-    private void AnimationHandler()
+    private void MoveAnimationHandler()
     {
-        bool isJumpingAnimation = _animator.GetBool(a_isJumping);
-        bool attack1Animation = _animator.GetBool(a_attack1);
-        bool attack2Animation = _animator.GetBool(a_attack2);
-        bool attack3Animation = _animator.GetBool(a_attack3);
+        CharacterController _tempController = PlayerManager._characterControllerReference?.Invoke();
+        _currentVelocity = _tempController.velocity.magnitude;
 
-        #region Movement Animation Requirement
-        _animator.SetFloat(a_velocity, PlayerManager.Instance.GetCurrentVelocity());
-        #endregion
+        _animator.SetFloat(_velocityHash, _currentVelocity);
+    }
 
-        #region Jump Animation Requirement
-        if (PlayerManager.Instance.GetJumpPressed() && !isJumpingAnimation)
-        {
-            _animator.SetBool(a_isJumping, true);
-        }
-        else if (!PlayerManager.Instance.GetJumpPressed() && isJumpingAnimation)
-        {
-            _animator.SetBool(a_isJumping, false);
-        }
-        else if (PlayerManager.Instance.GetJumpPressed() && isJumpingAnimation)
-        {
-            _animator.SetBool(a_isJumping, false);
-        }
-        #endregion
+    private void JumpAnimationHandler(bool isJumpPressed, int numberOfJumps)
+    {
+        CharacterController _tempController = PlayerManager._characterControllerReference?.Invoke();
+        if (isJumpPressed) this._numberOfJumps = numberOfJumps;
+        _isJumping = isJumpPressed;
 
-        #region First Attack Animation Requirement
-        if(PlayerManager.Instance.GetIsGrounded() && PlayerManager.Instance.GetPlayerAttacking() && !attack1Animation)
-        {
-            _animator.SetBool(a_attack1, true);
-        }
-        else if(PlayerManager.Instance.GetIsGrounded() && PlayerManager.Instance.GetPlayerAttacking() && attack1Animation)
-        {
-            _animator.SetBool(a_attack1, false);
-        }
-        else if (PlayerManager.Instance.GetIsGrounded() && !PlayerManager.Instance.GetPlayerAttacking() && attack1Animation)
-        {
-            _animator.SetBool(a_attack1, false);
-        }
-        #endregion
+        bool _isJumpingAnimation = _animator.GetBool(_isJumpingHash);
+        
+        _animator.SetInteger(_numberOfJumpsHash, _numberOfJumps);
 
-        #region Second Animation Requirement
-        if (PlayerManager.Instance.GetIsGrounded() && PlayerManager.Instance.GetPlayerAttacking() && !attack2Animation && PlayerManager.Instance.GetAttackComboIndex() == 3)
+        if (_tempController.isGrounded || _animator.GetInteger(numberOfJumps) > 2)
         {
-            _animator.SetBool(a_attack2, true);
+            _animator.SetInteger(numberOfJumps, 0);
         }
-        else if (PlayerManager.Instance.GetIsGrounded() && PlayerManager.Instance.GetPlayerAttacking() && attack2Animation)
+        if (_isJumping && !_isJumpingAnimation && _tempController.isGrounded)
         {
-            _animator.SetBool(a_attack2, false);
+            _animator.SetBool(_isJumpingHash, true);
         }
-        else if (PlayerManager.Instance.GetIsGrounded() && !PlayerManager.Instance.GetPlayerAttacking() && attack2Animation)
+        else if (_isJumpingAnimation || _tempController.isGrounded)
         {
-            _animator.SetBool(a_attack2, false);
+            _animator.SetBool(_isJumpingHash, false);
         }
-        #endregion
+    }
+    private void AttackAnimationHandler(bool isAttackPressed)
+    {
+        this._isAttacking = isAttackPressed;
+        if (this._isAttacking && !_animator.GetBool(_isAttackHash))
+        {
+            _animator.SetBool(_isAttackHash, true);
+        }
+        else if (_animator.GetBool(_isAttackHash) && !this._isAttacking)
+        {
+            _animator.SetBool(_isAttackHash, false);
+        }
+    }
 
-        #region Second Animation Requirement
-
-        #endregion
+    private void OnDisable()
+    {
+        PlayerManager.HandleJumpInput -= JumpAnimationHandler;
+        PlayerManager.HandleAttackInput -= AttackAnimationHandler;
     }
 }
-
