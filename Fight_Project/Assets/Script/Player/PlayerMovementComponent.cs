@@ -23,6 +23,7 @@ public class PlayerMovementComponent : MonoBehaviour
         PlayerManager.HandleMoveInput += SetMoveInfo;
         PlayerManager.HandleJumpInput += MakePlayerJump;
         PlayerManager._characterControllerReference = GetCharacterController;
+        PlayerManager.PlayerPositionReference = GetPlayerPosition;
 
         characterController = GetComponent<CharacterController>();
     }
@@ -110,6 +111,11 @@ public class PlayerMovementComponent : MonoBehaviour
     private CharacterController GetCharacterController()
     {
         return characterController;
+    }
+
+    private Vector3 GetPlayerPosition()
+    {
+        return transform.position;
     }
 
     private void OnDisable()

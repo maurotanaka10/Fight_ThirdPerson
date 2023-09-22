@@ -4,6 +4,7 @@ using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
+
 public class PlayerManager : MonoBehaviour
 {
     public static event Action<InputAction.CallbackContext, float> HandleMoveInput;
@@ -13,6 +14,10 @@ public class PlayerManager : MonoBehaviour
     public delegate CharacterController CharacterControllerReference();
 
     public static CharacterControllerReference _characterControllerReference;
+
+    public delegate Vector3 PlayerPosition();
+
+    public static PlayerPosition PlayerPositionReference;
 
     private int _numberOfJumps = 0;
     
