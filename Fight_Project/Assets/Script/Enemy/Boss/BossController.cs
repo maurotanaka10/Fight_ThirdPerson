@@ -10,8 +10,8 @@ using Random = UnityEngine.Random;
 public class BossController : MonoBehaviour
 {
     private EBossStates _currentState;
-    private NavMeshAgent _navMeshAgent;
-    [SerializeField] private SphereCollider _sphereCollider;
+    public NavMeshAgent _navMeshAgent;
+    public SphereCollider _sphereCollider;
     [SerializeField] private PlayerManager _playerManager;
     
     public event Action<EBossStates> OnIdleBoss;
@@ -25,7 +25,7 @@ public class BossController : MonoBehaviour
     [SerializeField] private float _timeInIdle;
     [SerializeField] private float _visionRange;
     [SerializeField] private float _attackRange;
-    [SerializeField] private float _velocity;
+    public float _velocity;
     [SerializeField] private Vector2 _minPosition;
     [SerializeField] private Vector2 _maxPosition; 
     
@@ -78,9 +78,6 @@ public class BossController : MonoBehaviour
                 break;
             case EBossStates.Attack360:
                 Attack360StateHandler();
-                break;
-            case EBossStates.Hit:
-                HitStateHandler();
                 break;
             case EBossStates.Die:
                 DieStateHandler();
@@ -150,10 +147,12 @@ public class BossController : MonoBehaviour
         else if (_distanceFromPlayer <= _attackRange)
         {
             _currentState = EBossStates.AttackNormal;
+            _navMeshAgent.isStopped = true;
         }
         else if (LifeBoss == 1 && _distanceFromPlayer <= _attackRange)
         {
             _currentState = EBossStates.Attack360;
+            _navMeshAgent.isStopped = true;
         }
         else if (LifeBoss == 0)
         {
@@ -163,14 +162,13 @@ public class BossController : MonoBehaviour
 
     private void AttackNormalStateHandler()
     {
+       
         OnAttackNormalBoss?.Invoke(_currentState);
-        _navMeshAgent.isStopped = true;
-        _sphereCollider.enabled = true;
-        StartCoroutine(TurnOffColliderAttack());
 
         if (_distanceFromPlayer >= _attackRange)
         {
             _currentState = EBossStates.Chase;
+            _navMeshAgent.speed = _velocity;
         }
         else if (LifeBoss == 1 && _distanceFromPlayer <= _attackRange)
         {
@@ -179,6 +177,7 @@ public class BossController : MonoBehaviour
         else if (LifeBoss == 0)
         {
             _currentState = EBossStates.Die;
+            _navMeshAgent.speed = 0f;
         }
     }
 
@@ -186,8 +185,6 @@ public class BossController : MonoBehaviour
     {
         OnAttack360Boss?.Invoke(_currentState);
         _navMeshAgent.isStopped = true;
-        _sphereCollider.enabled = true;
-        StartCoroutine(TurnOffColliderAttack());
         
         if (_distanceFromPlayer >= _attackRange)
         {
@@ -201,11 +198,6 @@ public class BossController : MonoBehaviour
         {
             _currentState = EBossStates.Die;
         }
-    }
-
-    private void HitStateHandler()
-    {
-        OnHitBoss?.Invoke(_currentState);
     }
 
     private void DieStateHandler()
@@ -225,16 +217,10 @@ public class BossController : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject.CompareTag("Player"))
+        if (other.gameObject.CompareTag("Player") && !_playerManager.IsInvulnerable)
         {
             _playerManager._lives--;
             print($"acertou o jogador");
         }
-    }
-
-    private IEnumerator TurnOffColliderAttack()
-    {
-        yield return new WaitForSeconds(0.8f);
-        _sphereCollider.enabled = false;
     }
 }

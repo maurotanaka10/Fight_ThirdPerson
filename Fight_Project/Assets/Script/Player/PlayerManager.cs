@@ -25,6 +25,7 @@ public class PlayerManager : MonoBehaviour
     
     [SerializeField] private float _velocity = 10;
     public int _lives = 3;
+    public bool IsInvulnerable;
 
     private void Awake()
     {
@@ -60,6 +61,9 @@ public class PlayerManager : MonoBehaviour
     private void HandleAttack(bool isAttackPressed)
     {
         HandleAttackInput?.Invoke(isAttackPressed);
+
+        IsInvulnerable = true;
+        StartCoroutine(TurnOffInvulnerable());
     }
 
     private void OnDisable()
@@ -67,5 +71,11 @@ public class PlayerManager : MonoBehaviour
         GameManager.OnMoveInputContextReceived -= HandleMove;
         GameManager.OnJumpInputContextReceived -= HandleJump;
         GameManager.OnAttackInputContextReceived -= HandleAttack;
+    }
+
+    private IEnumerator TurnOffInvulnerable()
+    {
+        yield return new WaitForSeconds(1f);
+        IsInvulnerable = false;
     }
 }

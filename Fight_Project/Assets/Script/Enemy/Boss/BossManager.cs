@@ -14,7 +14,6 @@ public class BossManager : MonoBehaviour
     public static Action<EBossStates> OnChaseBossReceived;
     public static Action<EBossStates> OnAttackNormalBossReceived;
     public static Action<EBossStates> OnAttack360BossReceived;
-    public static Action<EBossStates> OnHitBossReceived;
     public static Action<EBossStates> OnDieBossReceived;
 
     private void Awake()
@@ -24,7 +23,6 @@ public class BossManager : MonoBehaviour
         _bossController.OnChaseBoss += OnChaseStatusReceived;
         _bossController.OnAttackNormalBoss += OnAttackNormalStatusReceived;
         _bossController.OnAttack360Boss += OnAttack360StatusReceived;
-        _bossController.OnHitBoss += OnHitStatusReceived;
         _bossController.OnDieBoss += OnDieStatusReceived;
         
     }
@@ -54,11 +52,6 @@ public class BossManager : MonoBehaviour
         OnAttack360BossReceived?.Invoke(obj);
     }
 
-    private void OnHitStatusReceived(EBossStates obj)
-    {
-        OnHitBossReceived?.Invoke(obj);
-    }
-
     private void OnDieStatusReceived(EBossStates obj)
     {
         OnDieBossReceived?.Invoke(obj);
@@ -71,7 +64,6 @@ public class BossManager : MonoBehaviour
         _bossController.OnChaseBoss -= OnChaseStatusReceived;
         _bossController.OnAttackNormalBoss -= OnAttackNormalStatusReceived;
         _bossController.OnAttack360Boss -= OnAttack360StatusReceived;
-        _bossController.OnHitBoss -= OnHitStatusReceived;
         _bossController.OnDieBoss -= OnDieStatusReceived;
     }
 }

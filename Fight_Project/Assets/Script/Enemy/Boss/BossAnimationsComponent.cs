@@ -13,7 +13,6 @@ public class BossAnimationsComponent : MonoBehaviour
     private int _isChaseHash;
     private int _isAttackNormalHash;
     private int _isAttack360Hash;
-    private int _isHitHash;
     private int _isDieHash;
 
     private void Awake()
@@ -27,7 +26,6 @@ public class BossAnimationsComponent : MonoBehaviour
         BossManager.OnChaseBossReceived += ChaseAnimationHandler;
         BossManager.OnAttackNormalBossReceived += AttackNormalAnimationHandler;
         BossManager.OnAttack360BossReceived += Attack360AnimationHandler;
-        BossManager.OnHitBossReceived += HitAnimationHandler;
         BossManager.OnDieBossReceived += DieAnimationHandler;
     }
 
@@ -61,12 +59,6 @@ public class BossAnimationsComponent : MonoBehaviour
             _animator.SetTrigger(_isAttack360Hash);
     }
 
-    private void HitAnimationHandler(EBossStates obj)
-    {
-        if(obj == EBossStates.Hit)
-            _animator.SetTrigger(_isHitHash);
-    }
-
     private void DieAnimationHandler(EBossStates obj)
     {
         if(obj == EBossStates.Die)
@@ -80,7 +72,6 @@ public class BossAnimationsComponent : MonoBehaviour
         _isChaseHash = Animator.StringToHash("isChasing");
         _isAttackNormalHash = Animator.StringToHash("isAttackNormal");
         _isAttack360Hash = Animator.StringToHash("isAttack360");
-        _isHitHash = Animator.StringToHash("getHit");
         _isDieHash = Animator.StringToHash("isDeath");
     }
 
@@ -91,7 +82,6 @@ public class BossAnimationsComponent : MonoBehaviour
         BossManager.OnChaseBossReceived -= ChaseAnimationHandler;
         BossManager.OnAttackNormalBossReceived -= AttackNormalAnimationHandler;
         BossManager.OnAttack360BossReceived -= Attack360AnimationHandler;
-        BossManager.OnHitBossReceived -= HitAnimationHandler;
         BossManager.OnDieBossReceived -= DieAnimationHandler;
     }
 }

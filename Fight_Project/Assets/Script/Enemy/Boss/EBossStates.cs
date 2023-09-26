@@ -5,6 +5,5 @@ public enum EBossStates
     Chase,
     AttackNormal,
     Attack360,
-    Hit,
     Die
 }
