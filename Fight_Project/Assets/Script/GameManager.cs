@@ -12,12 +12,21 @@ public class GameManager : MonoBehaviour
     public static Action<InputAction.CallbackContext> OnMoveInputContextReceived;
     public static Action<bool> OnJumpInputContextReceived;
     public static Action<bool> OnAttackInputContextReceived;
+    public static Action<bool> OnHitEnemyColliderReceived;
+    public static Action<int> OnNumberOfKillsReceived;
 
     private void Awake()
     {
         _inputManager.OnMove += OnMoveInputReceived;
         _inputManager.OnJump += OnJumpInputReceived;
         _inputManager.OnAttack += OnAttackInputReceived;
+        _playerManager.HandleHitEnemy += OnHitEnemyReceived;
+    }
+
+    private void OnHitEnemyReceived(bool hitEnemy, int numberOfKills)
+    {
+        OnHitEnemyColliderReceived?.Invoke(hitEnemy);
+        OnNumberOfKillsReceived?.Invoke(numberOfKills);
     }
 
     private void OnMoveInputReceived(InputAction.CallbackContext context)

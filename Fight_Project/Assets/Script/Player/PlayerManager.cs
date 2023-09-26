@@ -7,9 +7,11 @@ using UnityEngine.InputSystem;
 
 public class PlayerManager : MonoBehaviour
 {
+    [SerializeField] private PlayerAttack _playerAttack;
     public static event Action<InputAction.CallbackContext, float> HandleMoveInput;
     public static event Action<bool, int> HandleJumpInput;
     public static event Action<bool> HandleAttackInput;
+    public event Action<bool, int> HandleHitEnemy;
 
     public delegate CharacterController CharacterControllerReference();
 
@@ -22,7 +24,7 @@ public class PlayerManager : MonoBehaviour
     private int _numberOfJumps = 0;
     
     [SerializeField] private float _velocity = 10;
-    [SerializeField] private int _lives = 1;
+    public int _lives = 3;
 
     private void Awake()
     {
@@ -34,6 +36,12 @@ public class PlayerManager : MonoBehaviour
         GameManager.OnMoveInputContextReceived += HandleMove;
         GameManager.OnJumpInputContextReceived += HandleJump;
         GameManager.OnAttackInputContextReceived += HandleAttack;
+        _playerAttack.OnHitEnemy += HandleHitEnemyInAttack;
+    }
+
+    private void HandleHitEnemyInAttack(bool hitEnemy, int numberOfKills)
+    {
+        HandleHitEnemy?.Invoke(hitEnemy, numberOfKills);
     }
 
     private void HandleMove(InputAction.CallbackContext context)
