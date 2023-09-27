@@ -9,6 +9,8 @@ public class InputManager : MonoBehaviour
     public event Action<InputAction.CallbackContext> OnMove;
     public event Action<bool> OnJump;
     public event Action<bool> OnAttack;
+
+    private bool _isDead;
     
     private void Awake()
     {
@@ -23,6 +25,18 @@ public class InputManager : MonoBehaviour
 
         _playerInputSystem.Player.Attack.started += OnAttackInput;
         _playerInputSystem.Player.Attack.canceled += OnAttackInput;
+
+        PlayerManager.OnDead += OnDeadHandler;
+    }
+
+    private void OnDeadHandler(bool obj)
+    {
+        this._isDead = obj;
+
+        if (_isDead)
+        {
+            _playerInputSystem.Disable();
+        }
     }
 
     private void OnMovementInput(InputAction.CallbackContext context)

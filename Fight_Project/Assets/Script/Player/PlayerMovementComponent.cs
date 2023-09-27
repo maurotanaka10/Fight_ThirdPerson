@@ -1,8 +1,11 @@
+using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class PlayerMovementComponent : MonoBehaviour
 {
+    [SerializeField] private PlayerManager _playerManager;
+    
     private Vector3 _currentMovement;
     private Vector3 _cameraRelativeMovement;
     private Vector2 _inputData;

@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -7,11 +8,11 @@ using UnityEngine.InputSystem;
 public class PlayerAttack : MonoBehaviour
 {
     [SerializeField] private BossController _bossController;
+    private StandardEnemyController _standardEnemyController;
     private SphereCollider _sphereCollider;
 
-    public event Action<bool, int> OnHitEnemy;
-
-    private bool _hitEnemy;
+    public event Action<int> OnKillsEnemy;
+    
     private int numberOfKills;
 
     private void Awake()
@@ -20,11 +21,6 @@ public class PlayerAttack : MonoBehaviour
         _sphereCollider.enabled = false;
 
         PlayerManager.HandleAttackInput += AttackHandler;
-    }
-
-    private void Update()
-    {
-        _hitEnemy = false;
     }
 
     private void AttackHandler(bool isAttacking)
@@ -44,9 +40,11 @@ public class PlayerAttack : MonoBehaviour
     {
         if (collider.gameObject.CompareTag("Enemy"))
         {
-            _hitEnemy = true;
+            _standardEnemyController = FindObjectOfType<StandardEnemyController>();
+            
             numberOfKills++;
-            OnHitEnemy?.Invoke(_hitEnemy, numberOfKills);
+            _standardEnemyController.EnemyStandardIsDead = true;
+            OnKillsEnemy?.Invoke(numberOfKills);
         }
 
         if (collider.gameObject.CompareTag("Boss"))

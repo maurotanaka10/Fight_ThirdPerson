@@ -13,6 +13,7 @@ public class StandardEnemyController : MonoBehaviour
     private NavMeshAgent _navMeshAgent;
     private EStandardStates _currentState;
     private CapsuleCollider _capsuleCollider;
+    [SerializeField] private PlayerManager _playerManager;
 
     #endregion
 
@@ -37,8 +38,7 @@ public class StandardEnemyController : MonoBehaviour
     private float _delayTimerIdle = 0f;
     private bool _isIdleDelaying;
     private bool _isWalking;
-    private bool _isDead;
-    private bool _dieAnimation;
+    public bool EnemyStandardIsDead;
     private bool _hitPlayer;
     #endregion
 
@@ -59,10 +59,7 @@ public class StandardEnemyController : MonoBehaviour
 
         _currentState = EStandardStates.Idle;
         _isIdleDelaying = true;
-        _isDead = false;
-        _dieAnimation = false;
-
-        StandardEnemyManager.OnHitEnemyStandardReceived += GetHitInfo;
+        EnemyStandardIsDead = false;
     }
 
     private void Update()
@@ -91,9 +88,11 @@ public class StandardEnemyController : MonoBehaviour
             case EStandardStates.Chase:
                 ChaseStateHandler();
                 break;
-            case EStandardStates.Die:
-                DieStateHandler();
-                break;
+        }
+
+        if (EnemyStandardIsDead)
+        {
+            Destroy(this.gameObject);
         }
     }
 
@@ -166,37 +165,11 @@ public class StandardEnemyController : MonoBehaviour
         }
     }
 
-    private void DieStateHandler()
-    {
-        if (_isDead && !_dieAnimation)
-        {
-            OnDie?.Invoke(_currentState);
-            _navMeshAgent.isStopped = true;
-            _dieAnimation = true;
-        }
-    }
-
-    private void GetHitInfo(bool hitEnemy)
-    {
-        if (!hitEnemy) return;
-        _currentState = EStandardStates.Die;
-        _isDead = true;
-        print($"tomou dano do personagem");
-
-        StartCoroutine(TimerToDestroyGameObject());
-    }
-
     private Vector3 SetEnemyPosition()
     {
         _movePosition = new Vector3(Random.Range(_minPosition.x, _maxPosition.x), transform.position.y,
             Random.Range(_minPosition.y, _maxPosition.y));
 
         return _movePosition;
-    }
-
-    private IEnumerator TimerToDestroyGameObject()
-    {
-        yield return new WaitForSeconds(5f);
-        Destroy(gameObject);
     }
 }

@@ -24,7 +24,6 @@ public class BossManager : MonoBehaviour
         _bossController.OnAttackNormalBoss += OnAttackNormalStatusReceived;
         _bossController.OnAttack360Boss += OnAttack360StatusReceived;
         _bossController.OnDieBoss += OnDieStatusReceived;
-        
     }
 
     private void OnIdleStatusReceived(EBossStates obj)

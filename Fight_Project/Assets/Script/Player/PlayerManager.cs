@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.Serialization;
 
 
 public class PlayerManager : MonoBehaviour
@@ -11,7 +12,8 @@ public class PlayerManager : MonoBehaviour
     public static event Action<InputAction.CallbackContext, float> HandleMoveInput;
     public static event Action<bool, int> HandleJumpInput;
     public static event Action<bool> HandleAttackInput;
-    public event Action<bool, int> HandleHitEnemy;
+    public event Action<int> HandleKillsEnemy;
+    public static event Action<bool> OnDead;
 
     public delegate CharacterController CharacterControllerReference();
 
@@ -22,9 +24,10 @@ public class PlayerManager : MonoBehaviour
     public static PlayerPosition PlayerPositionReference;
 
     private int _numberOfJumps = 0;
+    private bool isDead;
     
     [SerializeField] private float _velocity = 10;
-    public int _lives = 3;
+    public int PlayerLives = 3;
     public bool IsInvulnerable;
 
     private void Awake()
@@ -32,17 +35,26 @@ public class PlayerManager : MonoBehaviour
         PlayerManagerSetUpListeners();
     }
 
+    private void Update()
+    {
+        if (PlayerLives <= 0)
+        {
+            isDead = true;
+            OnDead?.Invoke(isDead);
+        }
+    }
+
     private void PlayerManagerSetUpListeners()
     {
         GameManager.OnMoveInputContextReceived += HandleMove;
         GameManager.OnJumpInputContextReceived += HandleJump;
         GameManager.OnAttackInputContextReceived += HandleAttack;
-        _playerAttack.OnHitEnemy += HandleHitEnemyInAttack;
+        _playerAttack.OnKillsEnemy += HandleHitEnemyInAttack;
     }
 
-    private void HandleHitEnemyInAttack(bool hitEnemy, int numberOfKills)
+    private void HandleHitEnemyInAttack(int numberOfKills)
     {
-        HandleHitEnemy?.Invoke(hitEnemy, numberOfKills);
+        HandleKillsEnemy?.Invoke(numberOfKills);
     }
 
     private void HandleMove(InputAction.CallbackContext context)

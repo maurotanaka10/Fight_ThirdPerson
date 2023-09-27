@@ -219,7 +219,7 @@ public class BossController : MonoBehaviour
     {
         if (other.gameObject.CompareTag("Player") && !_playerManager.IsInvulnerable)
         {
-            _playerManager._lives--;
+            _playerManager.PlayerLives--;
             print($"acertou o jogador");
         }
     }

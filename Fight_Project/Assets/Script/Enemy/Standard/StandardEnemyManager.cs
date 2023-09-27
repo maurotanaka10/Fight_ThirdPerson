@@ -9,7 +9,6 @@ public class StandardEnemyManager : MonoBehaviour
     public static Action<EStandardStates> OnIdleStatusReceived;
     public static Action<EStandardStates> OnPatrolStatusReceived;
     public static Action<EStandardStates> OnChaseStatusReceived;
-    public static Action<EStandardStates> OnAttackStatusReceived;
     public static Action<EStandardStates> OnDieStatusReceived;
 
     public static Action<bool> OnHitEnemyStandardReceived;
@@ -20,7 +19,6 @@ public class StandardEnemyManager : MonoBehaviour
         _standardEnemyController.OnPatrol += OnPatrolReceived;
         _standardEnemyController.OnChase += OnChaseReceived;
         _standardEnemyController.OnDie += OnDieReceived;
-        GameManager.OnHitEnemyColliderReceived += OnHitEnemyReceived;
     }
 
     private void OnHitEnemyReceived(bool hitEnemy)
@@ -42,12 +40,7 @@ public class StandardEnemyManager : MonoBehaviour
     {
         OnChaseStatusReceived?.Invoke(currentState);
     }
-
-    private void OnAttackReceived(EStandardStates currentState)
-    {
-        OnAttackStatusReceived?.Invoke(currentState);
-    }
-
+    
     private void OnDieReceived(EStandardStates currentState)
     {
         OnDieStatusReceived?.Invoke(currentState);

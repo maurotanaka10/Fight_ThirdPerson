@@ -11,11 +11,15 @@ public class PlayerAnimations : MonoBehaviour
     private int _velocityHash;
     private int _isAttackHash;
     private int _numberOfJumpsHash;
+    private int _isDeathHash;
 
     private int _numberOfJumps;
     private bool _isJumping;
     private bool _isAttacking;
+    private bool _isDead;
     private float _currentVelocity = 0;
+    
+    public static event Action<bool> HandlerDead;
 
     private void Awake()
     {
@@ -24,6 +28,8 @@ public class PlayerAnimations : MonoBehaviour
 
         PlayerManager.HandleJumpInput += JumpAnimationHandler;
         PlayerManager.HandleAttackInput += AttackAnimationHandler;
+
+        PlayerManager.OnDead += DeadAnimationHandler;
     }
 
     private void GetAnimatorParameters()
@@ -32,6 +38,7 @@ public class PlayerAnimations : MonoBehaviour
         _velocityHash = Animator.StringToHash("velocity");
         _isAttackHash = Animator.StringToHash("isAttacking");
         _numberOfJumpsHash = Animator.StringToHash("numberOfJumps");
+        _isDeathHash = Animator.StringToHash("isDeath");
     }
 
     private void Update()
@@ -83,9 +90,20 @@ public class PlayerAnimations : MonoBehaviour
         }
     }
 
+    private void DeadAnimationHandler(bool isDead)
+    {
+        this._isDead = isDead;
+        if (_isDead && !_animator.GetBool(_isDeathHash))
+        {
+            _animator.SetBool(_isDeathHash, true);
+        }
+    }
+
     private void OnDisable()
     {
         PlayerManager.HandleJumpInput -= JumpAnimationHandler;
         PlayerManager.HandleAttackInput -= AttackAnimationHandler;
+        HandlerDead -= DeadAnimationHandler;
+
     }
 }
